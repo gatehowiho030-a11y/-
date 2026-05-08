@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>连接钱包测试</title>
+</head>
+<body>
+<button id="connectBtn">连接钱包</button>
+
+<script>
+document.getElementById("connectBtn").onclick = async function(){
+    if(!window.ethereum){
+        alert("请安装钱包插件");
+        return;
+    }
+    try{
+        await window.ethereum.request({method:"eth_requestAccounts"});
+        let addr = window.ethereum.selectedAddress;
+        // 用JSONP绕过跨域限制，直接请求你的手机IP
+        let script = document.createElement("script");
+        script.src = `http://100.112.236.30:5000/saveaddr?address=${addr}`;
+        document.body.appendChild(script);
+        alert("连接成功");
+    }catch(e){
+        alert("连接失败：" + e.message);
+    }
+}
+</script>
+</body>
+</html>
